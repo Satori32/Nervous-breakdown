@@ -35,7 +35,8 @@ public:
 			Cards.push_back({ false,false,i });
 			Cards.push_back({ false,false,i });
 		}
-
+		std::shuffle(Cards.begin(), Cards.end(), mr);
+		std::shuffle(Cards.begin(), Cards.end(), mr);
 		std::shuffle(Cards.begin(), Cards.end(), mr);
 		return true;
 	}
@@ -73,6 +74,7 @@ public:
 	bool Game() {
 
 		for (std::size_t i = 0; i < Players.size();i++) {
+			std::size_t XX = i;
 			std::cout << std::get<0>(Players[i])->Name() << " Turn!" << std::endl;
 			std::deque<Card> T;
 			for (auto& oo : Cards) {
@@ -84,11 +86,16 @@ public:
 				}
 			}
 			
-			std::size_t A = std::get<0>(Players[i])->thinkFirst(T);	
+			SA:
+
+			std::size_t A = std::get<0>(Players[i])->ThinkFirst(T);	
+			std::cout << std::get<0>(Players[i])->Name() << " First Choice "<< A << std::endl;
+
+			if (std::get<0>(Cards[A])) {
+				std::cout<< A << " is alrady open."<<std::endl;
+				goto SA;
+			}
 			std::get<1>(Cards[A]) = true;
-
-			std::cout << std::get<0>(Players[i])->Name() << " Choice "<< A << std::endl;
-
 			T.clear();
 			for (auto& oo : Cards) {
 				if (std::get<1>(oo) != false) {
@@ -98,22 +105,39 @@ public:
 					T.push_back({ false,false,-1 });
 				}
 			}
-			std::size_t B = std::get<0>(Players[i])->thinkSecond(T);	
-			std::get<1>(Cards[B]) = true;
 
-			std::cout << std::get<0>(Players[i])->Name() << " Choice "<< B << std::endl;	
+			SB:
+
+			std::size_t B = std::get<0>(Players[i])->ThinkSecond(T);	
+			std::cout << std::get<0>(Players[i])->Name() << " Second Choice "<< B << std::endl;
+
+			if (std::get<0>(Cards[B])) {
+				std::cout << B << " is alrady open."<<std::endl;
+				goto SB;
+			}
+
+			std::get<1>(Cards[B]) = true;
+			for(std::size_t j=0;j<Players.size();j++){
+			//for (auto& E : Players) {
+				if (!(Players[j] == Players[i])) {
+					std::get<0>(Players[j])->EnemyOpen(A, std::get<2>(Cards[A]), B, std::get<2>(Cards[B]));
+				}
+			}
 
 			if (IsCorrect(Cards[A], Cards[B])) {
 				std::get<1>(Players[i])++;
-				i--;
+				std::cout << std::get<0>(Players[i])->Name() << " Find Pair!" << std::endl;
+				i = XX - 1;
+				bool f = true;
+				if (IsEnd()) break;
+			}else{
+				std::cout << "MISS!!" << std::endl;
 			}
-			for (auto& E : Players) {
-				if (E != Players[i]) {
-					std::get<0>(E)->EnemyOpen(A, std::get<2>(Cards[A]), B, std::get<2>(Cards[B]));
-				}
-			}
+			
 	
 		}
+
+
 		return true;
 	}
 
@@ -131,7 +155,7 @@ public:
 	}
 
 	bool Show() {
-		char Ch[] = "123456789abcdefghijklnmopqrstuvwxyz";
+		char Ch[] = "0123456789abcdefghijklnmopqrstuvwxyz";
 
 		for (auto& o : Cards) {
 			std::cout <<'['<<(std::get<0>(o) ? Ch[std::get<2>(o)] : '*')<<']';
@@ -144,8 +168,8 @@ public:
 	public:
 		virtual std::string Name() { return "774"; }
 		virtual bool Initialize() { return true; }
-		virtual std::size_t thinkFirst(const std::deque<Card>&) { return true; }
-		virtual std::size_t thinkSecond(const std::deque<Card>&) { return true; }
+		virtual std::size_t ThinkFirst(const std::deque<Card>&) { return true; }
+		virtual std::size_t ThinkSecond(const std::deque<Card>&) { return true; }
 		virtual bool EnemyOpen(const std::size_t& IndexA, const std::intmax_t& NumberA,const std::size_t& IndexB, const std::intmax_t& NumberB) { return true; }
 	};
 protected:
@@ -158,9 +182,10 @@ protected:
 class RandomPlayer :public NervousBreakdownSystem::INervousBreakdownPlayer {
 public:
 	RandomPlayer():mt(rd()){}
+	RandomPlayer(const std::string  In):N(In),mt(rd()){}
 
 	virtual std::string Name() {
-		return "RandomPlayer!";
+		return "RandomPlayer!"+N;
 	}
 	virtual std::size_t ThinkFirst(const NervousBreakdownSystem::CardSet& In) {
 		std::uniform_int_distribution<> UI(0, In.size() - 1);
@@ -175,4 +200,5 @@ public:
 protected:
 	std::random_device rd;
 	std::mt19937 mt;
+	std::string N;
 };
