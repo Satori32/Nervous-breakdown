@@ -3,9 +3,9 @@
 #include "SinkeiSuizyakuSystem.h"
 
 int main() {
-	NervousBreakdownSystem NBS;
-	NervousBreakdownSystem::SharedPlayer A = std::make_shared<RandomPlayer>("1");
-	NervousBreakdownSystem::SharedPlayer B = std::make_shared<RandomPlayer>("2");
+	ConcentrationSystem NBS;
+	ConcentrationSystem::SharedPlayer A = std::make_shared<RandomPlayer>("1");
+	ConcentrationSystem::SharedPlayer B = std::make_shared<RandomPlayer>("2");
 
 	std::size_t  C = 9;
 	//std::size_t  C = 4;

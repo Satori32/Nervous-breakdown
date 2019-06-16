@@ -7,12 +7,12 @@
 #include <string>
 //#include <functional>
 
-class NervousBreakdownSystem {
+class ConcentrationSystem {
 	typedef std::tuple<bool, bool, std::uintmax_t> Card;//open,onceopen,number.
 public:
-	class INervousBreakdownPlayer;	
+	class IConcentrationPlayer;
 	typedef std::deque<Card> CardSet;
-	typedef std::shared_ptr<INervousBreakdownPlayer> SharedPlayer;
+	typedef std::shared_ptr<IConcentrationPlayer> SharedPlayer;
 protected:
 
 	typedef std::tuple<SharedPlayer, std::intmax_t> Data;
@@ -164,7 +164,7 @@ public:
 		return true;
 	}
 
-	class INervousBreakdownPlayer {
+	class IConcentrationPlayer {
 	public:
 		virtual std::string Name() { return "774"; }
 		virtual bool Initialize() { return true; }
@@ -179,7 +179,11 @@ protected:
 	std::minstd_rand mr;
 };
 
-class RandomPlayer :public NervousBreakdownSystem::INervousBreakdownPlayer {
+///-----
+///-----
+///-----
+
+class RandomPlayer :public ConcentrationSystem::IConcentrationPlayer {
 public:
 	RandomPlayer():mt(rd()){}
 	RandomPlayer(const std::string  In):N(In),mt(rd()){}
@@ -187,12 +191,12 @@ public:
 	virtual std::string Name() {
 		return "RandomPlayer!"+N;
 	}
-	virtual std::size_t ThinkFirst(const NervousBreakdownSystem::CardSet& In) {
+	virtual std::size_t ThinkFirst(const ConcentrationSystem::CardSet& In) {
 		std::uniform_int_distribution<> UI(0, In.size() - 1);
 
 		return UI(mt);
 	}
-	virtual std::size_t ThinkSecond(const NervousBreakdownSystem::CardSet& In) {
+	virtual std::size_t ThinkSecond(const ConcentrationSystem::CardSet& In) {
 		std::uniform_int_distribution<> UI(0, In.size() - 1);
 
 		return UI(mt);
